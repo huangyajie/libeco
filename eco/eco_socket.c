@@ -100,8 +100,17 @@ int eco_accept(int fd, struct sockaddr *addr, socklen_t *addrlen)
     {
         return -1;
     }
+
+    ret = accept(fd,addr,addrlen);
+    if(ret < 0)
+    {
+        //errno EAGAIN EMFILE  
+        return -1;
+    }
+
+    fcntl(fd,F_SETFL,fcntl(fd,F_GETFL,0) | O_NONBLOCK);
     
-    return accept(fd,addr,addrlen);
+    return ret;
 
 }
 
@@ -369,7 +378,11 @@ int eco_poll(struct poll_fd* in,unsigned int nfds,struct poll_fd* out,unsigned i
 static void _eco_rusume_timer_cb (struct eloop_base* base,struct eloop_timeout *t)
 {
     struct poll_ctx* pctx = (struct poll_ctx*)t->priv;
-    eco_resume(pctx->cur_eco_base->sch,pctx->resume_id);  //启动新协程
+    if(pctx->resume_id >= 0)
+    {
+        eco_resume(pctx->cur_eco_base->sch,pctx->resume_id);  //启动新协程
+    }
+    
     eco_resume(pctx->cur_eco_base->sch,pctx->pending_id); //返回挂起协程
 }
 

@@ -12,7 +12,8 @@ static void foo(struct schedule * S, void *ud)
 	struct args * arg = ud;
 	int start = arg->n;
 	int i;
-	for (i=0;i<5;i++) {
+	for (i=0;i<5;i++) 
+	{
 		printf("coroutine %d : %d\n",eco_running_id(S) , start + i);
 		eco_yield(S);
 	}

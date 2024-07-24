@@ -14,7 +14,7 @@ static int tcp_server_init(int port)
     if (sock < 0)
         return -1;
 
-    
+
     const int one = 1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
@@ -43,10 +43,10 @@ static int tcp_server_init(int port)
 
 static void sock_readwrite_func(struct schedule * sch, void *ud) 
 {
-	int ret = 0;
+    int ret = 0;
     int fd = *((int*)ud);
     char rbuf[256] = {0};
-    
+
     for(;;)
     {
         memset(rbuf,0,sizeof(rbuf));
@@ -68,21 +68,21 @@ static void sock_readwrite_func(struct schedule * sch, void *ud)
 
 static void sock_accept_func(struct schedule * sch, void *ud) 
 {
-	int listen_fd = -1;
+    int listen_fd = -1;
     int cfd = -1;
     int co_rw = -1;
 
     struct sockaddr_in sin;
     unsigned int sl = sizeof(struct sockaddr_in);
-    
+
     listen_fd = tcp_server_init(5678);
     if(listen_fd < 0)
     {
         return;
     }
 
-	for(;;)
-	{   
+    for(;;)
+    {   
         cfd = eco_accept(listen_fd, (struct sockaddr *) &sin, &sl);
         if (cfd < 0) 
         {
@@ -93,8 +93,8 @@ static void sock_accept_func(struct schedule * sch, void *ud)
 
         co_rw = eco_create(eco_get_cur_schedule(),sock_readwrite_func,&cfd);
         eco_resume_later(eco_get_cur_schedule(),co_rw);
-		
-	}
+        
+    }
 }
 
 

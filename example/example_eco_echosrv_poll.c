@@ -14,7 +14,7 @@ static int tcp_server_init(int port)
     if (sock < 0)
         return -1;
 
-    
+
     const int one = 1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
@@ -36,14 +36,14 @@ static int tcp_server_init(int port)
         eco_close(sock);
         return -4;
     }
-	
+
     return sock;
 }
 
 static void sock_func(struct schedule * sch, void *ud) 
 {
-	int listen_fd = -1;
-	int ret = 0;
+    int listen_fd = -1;
+    int ret = 0;
     int i = 0;
     int j = 0;
     int nfds = -1;
@@ -58,7 +58,7 @@ static void sock_func(struct schedule * sch, void *ud)
     struct sockaddr_in sin;
     memset(&sin,0,sizeof(sin));
     unsigned int sl = sizeof(struct sockaddr_in);
-    
+
     listen_fd = tcp_server_init(5678);
     if(listen_fd < 0)
     {
@@ -67,8 +67,8 @@ static void sock_func(struct schedule * sch, void *ud)
     fd_all[listen_fd].fd = listen_fd;
     fd_all[listen_fd].events = ELOOP_READ;
 
-	for(;;)
-	{   
+    for(;;)
+    {   
         j = 0;
         memset(fd_in,0,sizeof(fd_in));
         memset(fd_out,0,sizeof(fd_out));
@@ -114,7 +114,7 @@ static void sock_func(struct schedule * sch, void *ud)
             {
                 memset(rbuf,0,sizeof(rbuf));
                 ret = eco_read(fd_out[i].fd,rbuf,sizeof(rbuf));
- 
+
                 if(ret <= 0)
                 {
                     //errno == EAGAIN EINTR
@@ -129,8 +129,8 @@ static void sock_func(struct schedule * sch, void *ud)
                 eco_write(fd_out[i].fd,rbuf,strlen(rbuf));
             }
         }
-		
-	}
+        
+    }
 }
 
 
