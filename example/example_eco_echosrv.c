@@ -95,6 +95,7 @@ static void sock_accept_func(struct schedule * sch, void *ud)
         eco_resume_later(eco_get_cur_schedule(),co_rw);
         
     }
+    eco_close(listen_fd);
 }
 
 
