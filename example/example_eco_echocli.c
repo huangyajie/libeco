@@ -56,6 +56,8 @@ static void sock_func(struct schedule * sch, void *ud)
 int main()
 {
     
+    signal(SIGPIPE, SIG_IGN);
+
     eco_loop_init();
 
     int co = eco_create(eco_get_cur_schedule(),sock_func,NULL);
