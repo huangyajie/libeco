@@ -108,7 +108,7 @@ int eco_accept(int fd, struct sockaddr *addr, socklen_t *addrlen)
         return -1;
     }
 
-    fcntl(fd,F_SETFL,fcntl(fd,F_GETFL,0) | O_NONBLOCK);
+    fcntl(ret,F_SETFL,fcntl(ret,F_GETFL,0) | O_NONBLOCK);
     
     return ret;
 

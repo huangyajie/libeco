@@ -7,8 +7,8 @@
 #include "eco.h"
 
 
-#define STACK_SIZE 1024*1024
-#define DEFAULT_COROUTINE_NUM 32
+#define STACK_SIZE 1024*128
+#define DEFAULT_COROUTINE_NUM 256
 
 
 
