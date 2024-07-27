@@ -52,10 +52,24 @@ static void sock_readwrite_func(struct schedule * sch, void *ud)
         memset(rbuf,0,sizeof(rbuf));
         ret = eco_read(fd,rbuf,sizeof(rbuf));
 
-        if(ret <= 0)
+        if(ret < 0)
         {
             //errno == EAGAIN EINTR
-            continue;
+            if((errno == EINTR) || (errno == EAGAIN))
+            {
+                fprintf(stderr,"no data ....... \n");
+                continue;
+            }
+
+            fprintf(stderr,"connect is lost ... fd = %d\n",fd);
+            eco_close(fd);
+            break;
+        }
+        else if(ret == 0)
+        {
+            fprintf(stderr,"connect is lost ++++ ... fd = %d\n",fd);
+            eco_close(fd);
+            break;
         }
 
         fprintf(stderr,"co_id = %d ----- rbuf = %s\n",eco_running_id(sch),rbuf);

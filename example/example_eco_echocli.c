@@ -24,9 +24,9 @@ static void sock_func(struct schedule * sch, void *ud)
             inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
             ret = eco_connect(fd,(struct sockaddr*)&addr,sizeof(addr));
 
-            if(ret > 0)
+            if(ret == 0)
             {
-                fprintf(stderr,"connect success fd = %d \n",ret);
+                fprintf(stderr,"connect success fd = %d \n",fd);
             }
             else
             {
