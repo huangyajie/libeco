@@ -152,8 +152,7 @@ int eco_connect(int fd, const struct sockaddr *address, socklen_t address_len)
 
     }
 
-    fcntl(fd,F_SETFL,fcntl(fd,F_GETFL,0) | O_NONBLOCK);
-    return fd;
+    return ret;
 
 }
 
@@ -199,11 +198,7 @@ ssize_t eco_read(int fd, void *buf, size_t nbyte)
     return index;
     #endif
 
-    ret = _eco_poll(fd,ELOOP_READ,ECO_SOCKET_READ_TIMEOUT);
-    if(ret <= 0)
-    {
-        return -1;
-    }
+    _eco_poll(fd,ELOOP_READ,ECO_SOCKET_READ_TIMEOUT);
 
     return read(fd,buf,nbyte);
 }
