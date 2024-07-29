@@ -10,9 +10,6 @@
 #include "eco.h"
 #include "eco_socket.h"
 
-#define ECO_SOCKET_CONNECT_TIMEOUT 5000 //ms
-#define ECO_SOCKET_READ_TIMEOUT  1000
-#define ECO_SOCKET_WRITE_TIMEOUT  1000
 
 
 struct eco_base
@@ -38,7 +35,6 @@ struct poll_ctx
 static __thread struct eco_base* g_cur_eco_base = NULL;  //每个线程独立
 
 
-static int _eco_poll(int fd,unsigned int events,int timeout);
 
 static struct eco_base* _get_cur_eco_base()
 {
@@ -160,44 +156,6 @@ int eco_connect(int fd, const struct sockaddr *address, socklen_t address_len)
 // ssize_t read( int fd, void *buf, size_t nbyte )
 ssize_t eco_read(int fd, void *buf, size_t nbyte)
 {
-    int ret = -1;
-    
-    #if 0   //nbyte可能会大于实际要读的数据，循环读存在一直等待的问题，写不存在此问题，可以循环写
-    int index = 0;
-    while (nbyte - index > 0)
-    {
-        ret = _eco_poll(fd,ELOOP_READ,ECO_SOCKET_READ_TIMEOUT);
-        if(ret <= 0)
-        {
-            continue;
-        }
-        ret = read(fd,buf+index,nbyte-index);
-        if(ret < 0)
-        {
-            if(errno == EINTR)
-            {
-                continue;
-            }
-            else if(errno == EAGAIN)
-            {
-                break;
-            }
-
-            return -1;  //链接异常断开
-        }
-        else if(ret == 0)
-        {
-            return 0;  //对方主动断开链接
-        }
-        else
-        {
-            index += ret;
-        }
-    }
-  
-    return index;
-    #endif
-
     _eco_poll(fd,ELOOP_READ,ECO_SOCKET_READ_TIMEOUT);
 
     return read(fd,buf,nbyte);
@@ -246,6 +204,20 @@ int eco_close(int fd)
     return close(fd);
 }
 
+// int socketpair(int domain, int type, int protocol, int sv[2]);
+int eco_socketpair(int domain, int type, int protocol, int sv[2])
+{
+    int ret = socketpair(domain,type,protocol,sv);
+    if(ret < 0)
+    {
+        return ret;
+    }
+
+    fcntl(sv[0],F_SETFL,fcntl(sv[0],F_GETFL,0) | O_NONBLOCK);
+    fcntl(sv[1],F_SETFL,fcntl(sv[1],F_GETFL,0) | O_NONBLOCK);
+
+    return ret;
+}
 
 
 
@@ -289,7 +261,7 @@ static void _ev_cb (struct eloop_base* base,struct eloop_fd *efd, unsigned int e
 }
 
 //-1:失败 0：超时  1：事件被触发
-static int _eco_poll(int fd,unsigned int events,int timeout)
+int _eco_poll(int fd,unsigned int events,int timeout)
 {
     struct  poll_fd pfd_in[1];
     struct  poll_fd pfd_out[1];

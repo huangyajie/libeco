@@ -28,6 +28,11 @@ extern "C" {
 #include "eco.h"
 #include "eloop.h"
 
+#define ECO_SOCKET_CONNECT_TIMEOUT 5000 //ms
+#define ECO_SOCKET_READ_TIMEOUT  1000
+#define ECO_SOCKET_WRITE_TIMEOUT  1000
+
+
 // int socket(int domain, int type, int protocol)
 int eco_socket(int domain, int type, int protocol);
 
@@ -53,6 +58,12 @@ ssize_t eco_write(int fd, const void *buf, size_t nbyte);
 
 // int close(int fd)
 int eco_close(int fd);
+
+// int socketpair(int domain, int type, int protocol, int sv[2]);
+int eco_socketpair(int domain, int type, int protocol, int sv[2]);
+
+//-1:失败 0：超时  1：事件被触发  
+int _eco_poll(int fd,unsigned int events,int timeout);
 
 int eco_poll(struct poll_fd* in,unsigned int nfds,struct poll_fd* out,unsigned int out_sz,int timeout);
 
