@@ -115,9 +115,19 @@ static void sock_func(struct schedule * sch, void *ud)
                 memset(rbuf,0,sizeof(rbuf));
                 ret = eco_read(fd_out[i].fd,rbuf,sizeof(rbuf));
 
-                if(ret <= 0)
+                if(ret < 0)
                 {
-                    //errno == EAGAIN EINTR
+                    if((errno == EINTR) || (errno == EAGAIN))
+                    {
+                        continue;
+                    }
+                    fd_all[fd_out[i].fd].fd = -1;
+                    fd_all[fd_out[i].fd].events = 0 ;
+                    eco_close(fd_out[i].fd);
+                    continue;
+                }
+                else if(ret == 0)
+                {
                     fd_all[fd_out[i].fd].fd = -1;
                     fd_all[fd_out[i].fd].events = 0 ;
                     eco_close(fd_out[i].fd);
